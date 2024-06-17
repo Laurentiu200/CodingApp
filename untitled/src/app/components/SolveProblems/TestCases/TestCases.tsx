@@ -11,7 +11,7 @@ const TestCases: React.FC<TestCasesProps> = ({problem}) => {
 
     return (
         // test case header
-        <div className={"h-[calc(100vh-450px)] overflow-auto rounded-b mx-4"}>
+        <div className={"h-[calc(100vh-550px)] overflow-auto rounded-b mx-4"}>
             <div className={" flex h-10 items-center space-x-6"}>
                 <div className={"relative flex h-full flex-col justify-center cursor-pointer"}>
                     <div className={"text-sm font-medium leading-5 text-blue-700"}>

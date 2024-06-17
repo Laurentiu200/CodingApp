@@ -1,4 +1,4 @@
-package com.example.codingapp.models;
+package com.example.codingapp.models.enums;
 
 public enum ProblemDifficulty {
     Easy,

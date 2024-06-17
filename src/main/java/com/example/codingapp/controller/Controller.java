@@ -2,19 +2,17 @@ package com.example.codingapp.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/secure")
+@RequestMapping("/problem")
 @RequiredArgsConstructor
-@CrossOrigin
+@CrossOrigin(origins = "*", maxAge = 3600)
 public class Controller {
 
-    @GetMapping
-    public ResponseEntity<String> sayHello()
+    @CrossOrigin
+    @GetMapping("/getData/{problemId}")
+    public ResponseEntity<String> sayHello(@PathVariable String problemId, @RequestHeader(name="Authorization") String token)
     {
         return ResponseEntity.ok("Hello");
     }

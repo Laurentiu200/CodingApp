@@ -4,6 +4,7 @@ import "./globals.css";
 import Head from "next/head";
 import RecoidContextProvider from "@/app/atoms/authModalAthoms";
 import {ToastContainer} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const inter = Inter({ subsets: ["latin"] });
 

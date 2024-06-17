@@ -1,7 +1,7 @@
 package com.example.codingapp.serviceImpl;
 
 import com.example.codingapp.configuration.JwtService;
-import com.example.codingapp.models.Role;
+import com.example.codingapp.models.enums.Role;
 import com.example.codingapp.models.User;
 import com.example.codingapp.repositories.UserRepository;
 import com.example.codingapp.requestModels.AuthenticationRequest;

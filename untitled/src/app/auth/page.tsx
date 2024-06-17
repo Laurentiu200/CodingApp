@@ -1,7 +1,7 @@
 "use client";
 
 import React  from "react";
-import NavigationBar from "@/app/components/NavigationBar/page";
+import NavigationBar from "@/app/components/NavigationBar/NavigationBar";
 import AuthModal from "@/app/components/Modal/AuthModal";
 import {useRecoilValue} from "recoil";
 import {authModalState} from "@/app/atoms/authModalAthoms";

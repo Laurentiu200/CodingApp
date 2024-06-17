@@ -1,5 +1,3 @@
-import exportedTypeSuite from "sucrase/dist/types/Options-gen-types";
-
 export type Example = {
     id: number;
     inputText: string;
@@ -20,6 +18,11 @@ export type Problem = {
     functionName: string;
 }
 
+export type ProblemDetails = {
+    starred:false,
+    difficulty:string
+}
+
 export type DBProblem = {
     id: string,
     difficulty: string,
@@ -28,5 +31,4 @@ export type DBProblem = {
     dislikes: number,
     title: string,
     category: string
-
 }

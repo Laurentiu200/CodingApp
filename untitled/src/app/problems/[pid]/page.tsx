@@ -1,39 +1,24 @@
 "use client"
 
-import React, {useState} from "react";
-import MainBar from "@/app/components/MainNavigationBar/page";
-import Workspace from "@/app/components/SolveProblems/page";
-import {problems} from "@/app/utils/problems/problemsMap";
-import {redirect, useParams} from "next/navigation";
-import {Problem} from "@/app/utils/problemType/ProblemStructure";
-import {badRequest} from "next/dist/client/components/react-dev-overlay/server/shared";
+import React, { useState } from "react";
+import MainNavigationBar from "@/app/components/MainNavigationBar/MainNavigationBar";
+import Workspace from "@/app/components/SolveProblems/Workspace";
+import { problems } from "@/app/utils/problems/problemsMap";
+import { redirect, useParams } from "next/navigation";
 
-type ProblemPageProps = {
+type ProblemPageProps = {}
 
-}
 const ProblemPage: React.FC<ProblemPageProps> = () => {
+    const params = useParams();
+    const pid = Object.values(params)[0] as string;
+    const problem = problems[pid] || null;
 
-    const params1 = useParams()
-    const pid1 = Object.values(params1).map((value) => {
-        return value;
-    })
-    let problem: Problem | null = null;
-    Object.entries(problems).map(([key, value]) => {
-        if(key.toString() === pid1[0].toString())
-            problem = value;
-     })
-    if(!problem)
-    {
-        redirect("/error")
-    }
     return (
         <div>
-            <MainBar probPage={true}/>
-            <Workspace problem={problem}/>
-
+            <MainNavigationBar problemPage={true} />
+            <Workspace problem={problem} />
         </div>
-    )
-
+    );
 }
 
 export default ProblemPage;

@@ -1,15 +1,16 @@
 import React from "react";
-import ProblemBar from "@/app/components/ProblemBar/page";
-import {Problem} from "@/app/utils/problemType/ProblemStructure";
+import ProblemBar from "@/app/components/ProblemBar/ProblemBar";
+import {Problem, ProblemDetails} from "@/app/utils/problemType/ProblemStructure";
 
 type DescriptionProps = {
     problem: Problem
+    problemDetails: ProblemDetails
 }
-const Description: React.FC<DescriptionProps> = ({problem}) => {
+const Description: React.FC<DescriptionProps> = ({problemDetails, problem}) => {
     return (
         <div className={"flex-col mx-24 my-5 border-2 border-blue-300 rounded-xl"} >
-            <ProblemBar difficulty={'easy'} title={problem.title} problemId={problem.id}/>
-            <div className='flex px-0 py-4 h-[calc(100vh-94px)] overflow-y-auto  border-blue-700'>
+            <ProblemBar starred={problemDetails.starred} difficulty={problemDetails.difficulty} title={problem.title} problemId={problem.id}/>
+            <div className='flex-nowrap px-0 py-4 h-[calc(100vh-94px)]  overflow-y-auto border-blue-700'>
                 <div className='px-5'>
                     <div className='w-full'>
                         <div className='text-black text-md mt-3'>

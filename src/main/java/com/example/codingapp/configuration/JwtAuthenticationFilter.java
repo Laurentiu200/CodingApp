@@ -34,6 +34,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwtToken;
         final String email;
 
+        if(request.getHeader("Access-Control-Request-Method") != null &&
+                (request.getHeader("Access-Control-Request-Method").equals("GET")
+                        || request.getHeader("Access-Control-Request-Method").equals("POST")
+                        || request.getHeader("Access-Control-Request-Method").equals("DELETE")))
+        {
+            response.setHeader("Access-Control-Allow-Origin", "*");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
+            response.setHeader("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization");
+            response.setStatus(HttpStatus.OK.value());
+            return;
+        }
+
         if(null == authenticationHeader || !authenticationHeader.startsWith("Bearer "))
         {
             filterChain.doFilter(request, response);

@@ -26,7 +26,7 @@ const AuthModal:React.FC<AuthModalProps> = () => {
         }
         window.addEventListener("keydown", handleEsc);
         return () => window.removeEventListener("keydown", handleEsc);
-    }, []);
+    }, );
     return (
         <div className={"absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-60"}>
             <div className={"w-full sm:w-[450px]  absolute top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%]  flex justify-center items-center"}>

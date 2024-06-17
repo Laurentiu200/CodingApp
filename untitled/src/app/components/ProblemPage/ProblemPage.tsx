@@ -1,16 +1,17 @@
 "use client";
 
 import Link from 'next/link';
-import ProblemBar from "@/app/components/ProblemBar/page";
+import ProblemBar from "@/app/components/ProblemBar/ProblemBar";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import GetCookie from "@/app/actions/GetCookie";
 
 const BASE_URL = 'http://localhost:8080';
 
-type ProblemPageProps = {
+type ProblemProps = {
 };
 
-const ProblemPage: React.FC<ProblemPageProps> = () => {
+const ProblemPage: React.FC<ProblemProps> = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const problemsPerPage = 6;
 
@@ -22,21 +23,37 @@ const ProblemPage: React.FC<ProblemPageProps> = () => {
             likes: 0,
             dislikes: 0,
             title: "",
-            category: ""
+            category: "",
+            starred:false
         }
     ]);
 
     useEffect(() => {
         const getProblems = async () => {
             try {
-                console.log("Fetching problems...");
-                const response = await axios.get(`${BASE_URL}/secure/problem/getAll`);
-                setListOfProblems(response.data);
-            } catch (error) {
-                console.error("Error fetching problems:", error);
+                const cookie = await GetCookie();
+                if (cookie) {
+                    console.log(cookie)
+                    const response = await axios.get(`${BASE_URL}/secure/problem/getAllAuthenticated`, {
+                        headers: {
+                            'Authorization': `Bearer ${cookie?.value.substring(10, cookie?.value.length - 2)}`
+                        }
+                    })
+
+                    setListOfProblems(response.data);
+                } else {
+
+                    const response = await axios.get(`${BASE_URL}/secure/problem/getAll`);
+                    setListOfProblems(response.data);
+                }
             }
+            catch (error)
+                {
+                    console.error("Error fetching problems:", error);
+                }
+
         };
-        getProblems();
+        getProblems()
     }, []);
 
     const indexOfLastProblem = currentPage * problemsPerPage;
@@ -57,7 +74,7 @@ const ProblemPage: React.FC<ProblemPageProps> = () => {
                     >
                         <div className={"max-w-1xl mx-auto"}>
                             <div className={"max-width: 100px mx-auto"}>
-                                <ProblemBar difficulty={prob.difficulty} title={prob.title} problemId={prob.id} />
+                                <ProblemBar  difficulty={prob.difficulty} title={prob.title} problemId={prob.id} starred={prob.starred}/>
                             </div>
 
                             <div className="text-black text-2md px-4 py-2 relative break-before-right">

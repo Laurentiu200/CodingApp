@@ -1,5 +1,6 @@
 package com.example.codingapp.models;
 
+import com.example.codingapp.models.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,14 +38,23 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(name = "CRT_DT")
-    Date crt_dt;
-
-    @Column(name = "UPD_DT")
-    Date upd_dt;
-
+    @ElementCollection
     @Column
-    List<SolvedProblems> solvedProblems;
+    List<String> solvedProblems = new ArrayList<>();
+
+    @ElementCollection
+    @Column
+    List<String> starredProblems = new ArrayList<>();
+
+    public void addStaredProblem(String id)
+    {
+        starredProblems.add(id);
+    }
+
+    public void removeStarredProblem(String problemId)
+    {
+        starredProblems.remove(problemId);
+    }
 
 
     public User() {

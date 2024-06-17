@@ -1,12 +1,12 @@
 package com.example.codingapp.controller;
 
+import com.example.codingapp.configuration.JwtService;
+import com.example.codingapp.models.Pesponses.ProblemList;
 import com.example.codingapp.models.Problem;
-import com.example.codingapp.models.ProblemDifficulty;
-import com.example.codingapp.repositories.ProblemRepository;
+import com.example.codingapp.models.Pesponses.ProblemDetails;
+import com.example.codingapp.service.ProblemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,22 +20,51 @@ import java.util.List;
 public class ProblemController {
 
     @Autowired
-    ProblemRepository problemRepository;
+    ProblemService problemService;
+
+    @Autowired
+    JwtService jwtService;
 
     @GetMapping("/getProblem/{id}")
-    public Problem getProblems(@PathVariable String id){
-        return problemRepository.findById(id).orElse(new Problem());
+    public ResponseEntity<Problem> getProblem(@PathVariable String id){
+        return problemService.getProblem(id);
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<Problem>> getAllProblems(){
-        return new ResponseEntity<>(problemRepository.findAll(Sort.by("order")), HttpStatus.OK);
+    public ResponseEntity<List<ProblemList>> getAllProblems(){
+        return problemService.getAllProblemsSorted();
+    }
+    @GetMapping("/getAllAuthenticated")
+    public ResponseEntity<List<ProblemList>> getAllProblemsAuthenticated(@RequestHeader(name="Authorization") String token){
+        String email = jwtService.extractEmailFromToken(token.substring(7));
+        return problemService.getAllProblemsSortedAuthenticated(email);
     }
 
     @PostMapping("/saveProblem")
     public void saveProblem(@RequestBody Problem problem)
     {
-        problemRepository.save(problem);
+        problemService.saveProblem(problem);
+    }
+
+    @PostMapping("/starProblem/{problemId}")
+    public ResponseEntity starProblem(@RequestHeader(name="Authorization") String token, @PathVariable String problemId)
+    {
+        String email = jwtService.extractEmailFromToken(token.substring(7));
+        return problemService.starProblem(email, problemId);
+    }
+
+    @PostMapping("/removeStarProblem/{problemId}")
+    public ResponseEntity unStarProblem(@RequestHeader(name="Authorization") String token, @PathVariable String problemId)
+    {
+        String email = jwtService.extractEmailFromToken(token.substring(7));
+        return problemService.unStarProblem(email, problemId);
+    }
+
+    @GetMapping("/getProblemDetails/{problemId}")
+    public ResponseEntity<ProblemDetails> getProblemDetails(@RequestHeader(name="Authorization") String token,@PathVariable String problemId)
+    {
+        String email = jwtService.extractEmailFromToken(token.substring(7));
+        return problemService.getProblemDetails(problemId, email);
     }
 
 
