@@ -9,6 +9,8 @@ import com.example.codingapp.requestModels.RegisterRequest;
 import com.example.codingapp.responseModels.AuthenticationResponse;
 import com.example.codingapp.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,7 +26,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public AuthenticationResponse register(RegisterRequest request) {
+    public ResponseEntity<AuthenticationResponse> register(RegisterRequest request) {
+        if(request.getEmail() == null
+                || request.getPassword() == null
+                || request.getLastName() == null
+                || request.getFirstName() == null )
+        {
+            return new ResponseEntity<>(AuthenticationResponse.builder()
+                    .token("All fields must be filled!")
+                    .build(),HttpStatus.BAD_REQUEST);
+        }
+
+        User searchedUser = userRepository.findById(request.getEmail()).orElse(null);
+        if(searchedUser != null)
+        {
+            return new ResponseEntity<>(AuthenticationResponse.builder()
+                    .token("Email already exists")
+                    .build(),HttpStatus.BAD_REQUEST);
+        }
+
+        if(request.getPassword().length() < 10)
+        {
+            return new ResponseEntity<>(AuthenticationResponse.builder()
+                    .token("Password must contain at least 10 characters")
+                    .build(),HttpStatus.BAD_REQUEST);
+        }
+
         User user = User.builder()
                 .email(request.getEmail())
                 .firstName(request.getFirstName())
@@ -34,9 +61,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
         userRepository.save(user);
         String jwtToken = jwtService.generateNewToken(user);
-        return AuthenticationResponse.builder()
+        return new ResponseEntity<>(AuthenticationResponse.builder()
                 .token(jwtToken)
-                .build();
+                .build(), HttpStatus.OK);
     }
 
     @Override

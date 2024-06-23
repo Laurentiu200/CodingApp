@@ -1,4 +1,4 @@
-package com.example.codingapp.models.Pesponses;
+package com.example.codingapp.responseModels;
 
 import com.example.codingapp.models.enums.ProblemDifficulty;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class ProblemDetails {
 
     boolean starred;
+
     ProblemDifficulty difficulty;
 
-
+    Integer bestScore;
 }

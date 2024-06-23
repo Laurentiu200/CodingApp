@@ -1,4 +1,4 @@
-package com.example.codingapp.models.Pesponses;
+package com.example.codingapp.responseModels;
 
 import com.example.codingapp.models.enums.ProblemDifficulty;
 import lombok.AllArgsConstructor;
@@ -20,10 +20,11 @@ public class ProblemList {
 
     private ProblemDifficulty difficulty;
 
-    private Integer likes = 0;
+    private String shortDescription;
 
     private Integer order;
 
-    private Integer dislikes = 0;
+    private Integer score;
+
     private boolean starred = false;
 }

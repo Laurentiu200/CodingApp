@@ -1,8 +1,0 @@
-{
-  "python": {
-    "extensions": [".py"]
-  },
-  "javascript": {
-    "extensions": [".js"]
-  }
-}

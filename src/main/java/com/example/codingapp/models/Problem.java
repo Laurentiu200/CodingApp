@@ -1,11 +1,13 @@
 package com.example.codingapp.models;
 
-import com.example.codingapp.models.enums.ProblemDifficulty;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Entity
 @Data
@@ -19,22 +21,28 @@ public class Problem {
     @Column(name = "ID")
     private String id;
 
-    @Column(name = "TITLE")
+    @Column(name = "title")
     private String title;
 
-    @Column(name = "CATEGORY")
-    private String category;
+    @Column(name = "problemStatement")
+    private String problemStatement;
 
-    @Enumerated(EnumType.STRING)
-    private ProblemDifficulty difficulty;
+    @Column(name = "constraints")
+    private String constraints;
 
-    @Column(name = "LIKES")
-    private Integer likes = 0;
-
-    @Column(name = "ORDERS")
+    @Column(name = "orders")
     private Integer order;
 
-    @Column(name = "DISLIKES")
-    private Integer dislikes = 0;
+    @Column(name = "exampleCode")
+    private String exampleCode;
+
+    @OneToMany(targetEntity = Example.class, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "examples", referencedColumnName = "id")
+    private List<Example> examples;
+
+    @OneToMany(targetEntity = ProblemTestCase.class, cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "testCases", referencedColumnName = "id")
+    private List<ProblemTestCase> testCases;
+
 
 }

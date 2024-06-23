@@ -1,9 +1,14 @@
 package com.example.codingapp.serviceImpl;
 
-import com.example.codingapp.models.Pesponses.ProblemList;
 import com.example.codingapp.models.Problem;
-import com.example.codingapp.models.Pesponses.ProblemDetails;
+import com.example.codingapp.models.Solution;
+import com.example.codingapp.responseModels.ProblemList;
+import com.example.codingapp.models.ProblemDescription;
+import com.example.codingapp.responseModels.ProblemDetails;
 import com.example.codingapp.models.User;
+import com.example.codingapp.responseModels.ProblemModel;
+import com.example.codingapp.responseModels.SolutionModel;
+import com.example.codingapp.repositories.ProblemDescriptionRepository;
 import com.example.codingapp.repositories.ProblemRepository;
 import com.example.codingapp.repositories.UserRepository;
 import com.example.codingapp.service.ProblemService;
@@ -25,63 +30,78 @@ public class ProblemServiceServiceImpl implements ProblemService {
     ProblemRepository problemRepository;
 
     @Autowired
+    ProblemDescriptionRepository problemDescriptionRepository;
+
+    @Autowired
     UserRepository userRepository;
 
-    public ResponseEntity<ProblemDetails> getProblemDetails(String problemId, String email)
-    {
+    public ResponseEntity<ProblemDetails> getProblemDetails(String problemId, String email) {
         User user = userRepository.findById(email).orElse(null);
-        if(user == null)
-        {
+        if (user == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
-        Problem problem = problemRepository.findById(problemId).orElse(null);
-        if(problem == null)
-        {
+        ProblemDescription problemDescription = problemDescriptionRepository.findById(problemId).orElse(null);
+        if (problemDescription == null) {
             return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
         }
 
         ProblemDetails problemDetails = ProblemDetails
                 .builder()
-                .difficulty(problem.getDifficulty())
+                .difficulty(problemDescription.getDifficulty())
                 .starred(user.getStarredProblems().contains(problemId))
                 .build();
 
         return new ResponseEntity<>(problemDetails, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<ProblemList>> getAllProblemsSortedAuthenticated( String email)
-    {
+    public ResponseEntity<List<ProblemList>> getAllProblemsSortedAuthenticated(String email) {
         List<ProblemList> problemsModelList = new ArrayList<>();
-        List<Problem> problemList = problemRepository.findAll(Sort.by("order"));
+        List<ProblemDescription> problemDescriptionList = problemDescriptionRepository.findAll(Sort.by("order"));
         User user = userRepository.findById(email).orElse(null);
-        if(user == null)
-            return new ResponseEntity<>(problemsModelList,HttpStatus.NOT_FOUND);
+        if (user == null)
+            return new ResponseEntity<>(problemsModelList, HttpStatus.NOT_FOUND);
         else {
 
-            for(Problem problem : problemList)
-            {
-                if(user.getStarredProblems().contains(problem.getId()))
-                {
-                    problemsModelList.add(ProblemList.builder()
-                                    .id(problem.getId())
-                                    .title(problem.getTitle())
-                                    .category(problem.getCategory())
-                                    .order(problem.getOrder())
-                                    .likes(problem.getLikes())
-                                    .difficulty(problem.getDifficulty())
-                                    .dislikes(problem.getDislikes())
-                                    .starred(true)
-                                    .build());
+            for (ProblemDescription problemDescription : problemDescriptionList) {
+                List<Solution> solutions = user.getSolutions();
+                List<SolutionModel> solutionModels = new ArrayList<>();
+                int bestScore = -1;
+                if (solutions != null) {
+                    for (Solution sol : solutions) {
+                        if (sol.getProblemId().equals(problemDescription.getId())) {
+                            if (sol.getScore() > bestScore)
+                                bestScore = sol.getScore();
+                            SolutionModel solution = SolutionModel.builder()
+                                    .id(sol.getId())
+                                    .solution(sol.getSolution())
+                                    .submissionDate(sol.getDate().toString())
+                                    .score(sol.getScore())
+                                    .build();
+                            solutionModels.add(solution);
+                        }
+                    }
                 }
-                else {
+
+                if (user.getStarredProblems().contains(problemDescription.getId())) {
                     problemsModelList.add(ProblemList.builder()
-                            .id(problem.getId())
-                            .title(problem.getTitle())
-                            .category(problem.getCategory())
-                            .order(problem.getOrder())
-                            .likes(problem.getLikes())
-                            .difficulty(problem.getDifficulty())
-                            .dislikes(problem.getDislikes())
+                            .id(problemDescription.getId())
+                            .title(problemDescription.getTitle())
+                            .category(problemDescription.getCategory())
+                            .order(problemDescription.getOrder())
+                            .difficulty(problemDescription.getDifficulty())
+                            .shortDescription(problemDescription.getShortDescription())
+                            .score(bestScore)
+                            .starred(true)
+                            .build());
+                } else {
+                    problemsModelList.add(ProblemList.builder()
+                            .id(problemDescription.getId())
+                            .title(problemDescription.getTitle())
+                            .category(problemDescription.getCategory())
+                            .order(problemDescription.getOrder())
+                            .difficulty(problemDescription.getDifficulty())
+                            .shortDescription(problemDescription.getShortDescription())
+                            .score(bestScore)
                             .starred(false)
                             .build());
                 }
@@ -90,35 +110,111 @@ public class ProblemServiceServiceImpl implements ProblemService {
         return new ResponseEntity<>(problemsModelList, HttpStatus.OK);
     }
 
-    public ResponseEntity<List<ProblemList>> getAllProblemsSorted()
-    {
+    public ResponseEntity<List<ProblemList>> getAllProblemsSorted() {
 
         List<ProblemList> problemsModelList = new ArrayList<>();
-        List<Problem> problemList = problemRepository.findAll(Sort.by("order"));
-        for(Problem problem : problemList)
-        {
+        List<ProblemDescription> problemDescriptionList = problemDescriptionRepository.findAll(Sort.by("order"));
+        for (ProblemDescription problemDescription : problemDescriptionList) {
             problemsModelList.add(ProblemList.builder()
-                    .id(problem.getId())
-                    .title(problem.getTitle())
-                    .category(problem.getCategory())
-                    .order(problem.getOrder())
-                    .likes(problem.getLikes())
-                    .difficulty(problem.getDifficulty())
-                    .dislikes(problem.getDislikes())
+                    .id(problemDescription.getId())
+                    .title(problemDescription.getTitle())
+                    .category(problemDescription.getCategory())
+                    .shortDescription(problemDescription.getShortDescription())
+                    .order(problemDescription.getOrder())
+                    .difficulty(problemDescription.getDifficulty())
                     .starred(false)
+                    .score(-1)
                     .build());
         }
         return new ResponseEntity<>(problemsModelList, HttpStatus.OK);
     }
 
-    public ResponseEntity<Problem> getProblem(String problemId)
-    {
+    public ResponseEntity<ProblemModel> getProblem(String problemId) {
+        ProblemDescription problemDescription = problemDescriptionRepository.findById(problemId).orElse(null);
         Problem problem = problemRepository.findById(problemId).orElse(null);
-        if(null == problem)
-        {
+        if (null == problem || problemDescription == null) {
             return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(problem, HttpStatus.OK);
+
+        ProblemModel problemModel = ProblemModel.builder()
+                .problemStatement(problem.getProblemStatement())
+                .bestScore(-1)
+                .examples(problem.getExamples())
+                .constraints(problem.getConstraints())
+                .title(problem.getTitle())
+                .testCases(problem.getTestCases())
+                .id(problem.getId())
+                .order(problem.getOrder())
+                .starred(false)
+                .solutions(new ArrayList<>())
+                .difficulty(problemDescription.getDifficulty())
+                .exampleCode(problem.getExampleCode())
+                .build();
+        return new ResponseEntity<>(problemModel, HttpStatus.OK);
+    }
+
+    public ResponseEntity<ProblemModel> getProblemAuthenticated(String email, String problemId)
+    {
+        User user = userRepository.findById(email).orElse(null);
+        ProblemDescription problemDescription = problemDescriptionRepository.findById(problemId).orElse(null);
+        Problem problem = problemRepository.findById(problemId).orElse(null);
+
+        if (null == problem || problemDescription == null || user == null) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        List<Solution> solutions = user.getSolutions();
+        List<SolutionModel> solutionModels = new ArrayList<>();
+
+        int bestScore = -1;
+        if (solutions != null) {
+            for (Solution sol : solutions) {
+                if (sol.getProblemId().equals(problemId)) {
+                    if (sol.getScore() > bestScore)
+                        bestScore = sol.getScore();
+                    SolutionModel solution = SolutionModel.builder()
+                            .id(sol.getId())
+                            .solution(sol.getSolution())
+                            .submissionDate(sol.getDate().toString())
+                            .score(sol.getScore())
+                            .build();
+                    solutionModels.add(solution);
+                }
+            }
+        }
+
+
+        ProblemModel problemModel = ProblemModel.builder()
+                .problemStatement(problem.getProblemStatement())
+                .bestScore(bestScore)
+                .examples(problem.getExamples())
+                .constraints(problem.getConstraints())
+                .title(problem.getTitle())
+                .testCases(problem.getTestCases())
+                .id(problem.getId())
+                .order(problem.getOrder())
+                .starred(user.getStarredProblems().contains(problemId))
+                .solutions(solutionModels)
+                .difficulty(problemDescription.getDifficulty())
+                .exampleCode(problem.getExampleCode())
+                .build();
+        return new ResponseEntity<>(problemModel, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<ProblemModel> saveSolution(String email, Solution solution) {
+        User user = userRepository.findById(email).orElse(null);
+        if (user == null)
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        user.addSolution(solution);
+        userRepository.save(user);
+        return getProblemAuthenticated(email, solution.getProblemId());
+    }
+
+
+    @Override
+    public void saveProblemDescription(ProblemDescription problemDescription) {
+        problemDescriptionRepository.save(problemDescription);
     }
 
     @Override
@@ -127,28 +223,26 @@ public class ProblemServiceServiceImpl implements ProblemService {
     }
 
     @Override
-    public ResponseEntity starProblem(String email, String problemId) {
+    public ResponseEntity<ProblemModel> starProblem(String email, String problemId) {
         User user = userRepository.findById(email).orElse(null);
-        if(user != null)
-        {
-            if(!user.getStarredProblems().contains(problemId)) {
+        if (user != null) {
+            if (!user.getStarredProblems().contains(problemId)) {
                 user.addStaredProblem(problemId);
                 userRepository.save(user);
             }
-            return new ResponseEntity(HttpStatus.OK);
+            return getProblemAuthenticated(email, problemId);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return getProblem(problemId);
     }
 
     @Override
-    public ResponseEntity unStarProblem(String email, String problemId) {
+    public ResponseEntity<ProblemModel> unStarProblem(String email, String problemId) {
         User user = userRepository.findById(email).orElse(null);
-        if(user != null)
-        {
+        if (user != null) {
             user.removeStarredProblem(problemId);
             userRepository.save(user);
-            return new ResponseEntity(HttpStatus.OK);
+            return getProblemAuthenticated(email, problemId);
         }
-        return new ResponseEntity(HttpStatus.BAD_REQUEST);
+        return getProblem(problemId);
     }
 }

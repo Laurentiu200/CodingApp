@@ -1,37 +1,30 @@
 package com.example.codingapp.models;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
 @Data
 @Builder
-@Table(name = "Solutions")
+@Table(name = "Examples")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Solutions {
+public class Example {
 
     @Id
     @Column(name = "ID")
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
-    @Column(name = "UserId")
-    private String email;
+    @Column(name = "inputText")
+    private String inputText;
 
-    @Column(name = "ProblemId")
-    private String problemId;
+    @Column(name = "outputText")
+    private String outputText;
 
-    @ElementCollection
-    @Column
-    private List<String> solutions;
-
-
-
+    @Column(name = "explanation")
+    private String explanation;
 }
